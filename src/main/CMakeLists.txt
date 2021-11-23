@@ -34,6 +34,8 @@ SET(CALYPSONET_CARD_DIR    "../../../github.com.calypsonet.calypsonet-terminal-c
 SET(CALYPSONET_READER_DIR  "../../../github.com.calypsonet.calypsonet-terminal-reader-cpp-api")
 SET(KEYPLE_COMMON_DIR      "../../../github.com.calypsonet.keyple-common-cpp-api")
 SET(KEYPLE_PLUGIN_DIR      "../../../github.com.calypsonet.keyple-plugin-cpp-api")
+SET(KEYPLE_SERVICE_DIR     "../../../github.com.calypsonet.keyple-service-cpp-lib")
+SET(KEYPLE_SERVICE_LIB     "keypleservicecpplib")
 SET(KEYPLE_UTIL_DIR        "../../../github.com.calypsonet.keyple-util-cpp-lib")
 SET(KEYPLE_UTIL_LIB        "keypleutilcpplib")
 
@@ -60,6 +62,10 @@ INCLUDE_DIRECTORIES(
     ${KEYPLE_PLUGIN_DIR}/src/main/spi/reader/observable/state/processing
     ${KEYPLE_PLUGIN_DIR}/src/main/spi/reader/observable/state/removal
 
+    ${KEYPLE_SERVICE_DIR}/src/main
+    ${KEYPLE_SERVICE_DIR}/src/main/cpp
+    ${KEYPLE_SERVICE_DIR}/src/main/spi
+
     ${KEYPLE_UTIL_DIR}/src/main
     ${KEYPLE_UTIL_DIR}/src/main/cpp
     ${KEYPLE_UTIL_DIR}/src/main/cpp/exception
@@ -72,8 +78,15 @@ ADD_LIBRARY(
 
     ${CMAKE_CURRENT_SOURCE_DIR}/CardProfileManagerAdapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CardResource.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CardResourceProfileConfigurator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CardResourceServiceAdapter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CardResourceServiceConfiguratorAdapter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/PluginsConfigurator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/PoolPluginsConfigurator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ReaderManagerAdapter.cpp
 )
 
 FIND_LIBRARY(UTIL ${KEYPLE_UTIL_LIB} HINTS ${KEYPLE_UTIL_DIR}/build/bin)
+FIND_LIBRARY(SERVICE ${KEYPLE_SERVICE_LIB} HINTS ${KEYPLE_SERVICE_DIR}/build/bin)
 
-TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${UTIL})
+TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${UTIL} ${SERVICE})

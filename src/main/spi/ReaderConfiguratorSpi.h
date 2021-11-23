@@ -15,7 +15,7 @@
 #include <memory>
 
 /* Keyple Core Service */
-#include "Reader.h
+#include "Reader.h"
 
 namespace keyple {
 namespace core {

@@ -12,19 +12,35 @@
 
 #include "CardResourceProfileConfigurator.h"
 
+/* Keyple Core Util */
+#include "IllegalStateException.h"
+#include "KeypleAssert.h"
+#include "Pattern.h"
+#include "PatternSyntaxException.h"
+
 namespace keyple {
 namespace core {
 namespace service {
 namespace resource {
 
+using namespace keyple::core::util;
+using namespace keyple::core::util::cpp;
+using namespace keyple::core::util::cpp::exception;
+
+using Builder = CardResourceProfileConfigurator::Builder;
+
 /* CARD RESOURCE PROFILE CONFIGURATOR ----------------------------------------------------------- */
 
 CardResourceProfileConfigurator::CardResourceProfileConfigurator(Builder* builder)
-: mProfileName(builder->profileName),
-  mCardResourceProfileExtensionSpi(builder->cardResourceProfileExtensionSpi),
+: mProfileName(builder->mProfileName),
+  mCardResourceProfileExtensionSpi(builder->mCardResourceProfileExtensionSpi),
   mPlugins(builder->mPlugins),
-  mReaderNameRegex(builder->readerNameRegex),
-  mReaderGroupReference(builder->readerGroupReference) {}
+  mReaderNameRegex(builder->mReaderNameRegex),
+  mReaderGroupReference(builder->mReaderGroupReference)
+{
+    /* Deleted builder here. It's been allocated with new */
+    delete builder;
+}
 
 const std::string& CardResourceProfileConfigurator::getProfileName() const
 {
@@ -37,7 +53,7 @@ std::shared_ptr<CardResourceProfileExtension>
     return mCardResourceProfileExtensionSpi;
 }
 
-const std::vector<std::shared_ptr<Plugin>> CardResourceProfileConfigurator::getPlugins() const
+const std::vector<std::shared_ptr<Plugin>>& CardResourceProfileConfigurator::getPlugins() const
 {
     return mPlugins;
 }
@@ -61,25 +77,62 @@ Builder* CardResourceProfileConfigurator::builder(
 
 /* BUILDER -------------------------------------------------------------------------------------- */
 
-CardResourceProfileConfigurator::Builder::Builder(
-  const std::string& profileName, 
-  std::shared_ptr<CardResourceProfileExtension> cardResourceProfileExtension)
-: mProfileName(profileName), mCardResourceProfileExtensionSpi(cardResourceProfileExtension)
+Builder::Builder(const std::string& profileName,
+                 std::shared_ptr<CardResourceProfileExtension> cardResourceProfileExtension)
+: mProfileName(profileName), 
+  mCardResourceProfileExtensionSpi(cardResourceProfileExtension),
+  mReaderNameRegex(""),
+  mReaderGroupReference("")
 {
     Assert::getInstance().notNull(cardResourceProfileExtension, "cardResourceProfileExtension");
+}
+
+Builder& Builder::withPlugins(const std::vector<std::shared_ptr<Plugin>>& plugins)
+{
+    for (const auto& plugin : plugins) {
+        Assert::getInstance().notNull(plugin, "plugin");
+        mPlugins.push_back(plugin);
+    }
+
+    return *this;
+}
+
+Builder& Builder::withReaderNameRegex(const std::string& readerNameRegex)
+{
+    Assert::getInstance().notEmpty(readerNameRegex, "readerNameRegex");
     
-    const auto cardResource
-    if (!(cardResourceProfileExtension instanceof CardResourceProfileExtension)) {
-        throw new IllegalArgumentException(
-            "The provided card profile extension does not implement the right internal SPI.");
+    if (mReaderNameRegex != "") {
+        throw IllegalStateException("Reader name regex has already been set.");
+    }
+
+    try {
+        Pattern::compile(readerNameRegex);
+    } catch (const PatternSyntaxException& exception) {
+        (void)exception;
+        throw IllegalArgumentException("Invalid regular expression: " + readerNameRegex);
     }
     
-    this.profileName = profileName;
-    this.cardResourceProfileExtensionSpi =
-        (CardResourceProfileExtension) cardResourceProfileExtension;
-    this.plugins = new ArrayList<Plugin>(1);
-    this.readerNameRegex = null;
-    this.readerGroupReference = null;
+    mReaderNameRegex = readerNameRegex;
+
+    return *this;
+}
+
+Builder& Builder::withReaderGroupReference(const std::string& readerGroupReference)
+{
+    Assert::getInstance().notEmpty(readerGroupReference, "readerGroupReference");
+    
+    if (mReaderGroupReference != "") {
+        throw IllegalStateException("Reader group reference has already been set.");
+    }
+
+    mReaderGroupReference = readerGroupReference;
+    
+    return *this;
+}
+
+std::shared_ptr<CardResourceProfileConfigurator> Builder::build()
+{
+    return std::make_shared<CardResourceProfileConfigurator>(this);
 }
 
 }

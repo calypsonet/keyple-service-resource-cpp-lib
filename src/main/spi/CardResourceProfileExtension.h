@@ -35,6 +35,11 @@ using namespace calypsonet::terminal::reader::selection::spi;
 class CardResourceProfileExtension {
 public:
     /**
+     * 
+     */
+    virtual ~CardResourceProfileExtension() = default;
+    
+    /**
      * Checks if a card is inserted in the provided reader, selects it, evaluates its profile and
      * potentially executes any necessary commands.
      *

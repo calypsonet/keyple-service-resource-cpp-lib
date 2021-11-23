@@ -25,6 +25,7 @@ namespace service {
 namespace resource {
 
 using namespace keyple::core::service;
+using namespace keyple::core::service::resource::spi;
 
 /**
  * Configurator of a card resource profile.
@@ -33,6 +34,106 @@ using namespace keyple::core::service;
  */
 class KEYPLESERVICERESOURCE_API CardResourceProfileConfigurator final {
 public:
+    /**
+     * Builder of CardResourceProfileConfigurator.
+     *
+     * @since 2.0.0
+     */
+    class Builder {
+    public:
+        /**
+         * 
+         */
+        friend CardResourceProfileConfigurator;
+        
+        /**
+         * Restricts the scope of the search during the allocation process to the provided plugins.
+         *
+         * <p>If this setter is not invoked, all global configured plugins will be used as search
+         * domain during the allocation process.
+         *
+         * <p><u>Note:</u> The order of the plugins is important because it will be kept during the
+         * allocation process, but the pool plugins allocation strategy is defined by
+         * PoolPluginsConfigurator.
+         *
+         * @param plugins An ordered list of plugins.
+         * @return The current builder instance.
+         * @throw IllegalArgumentException If one or more plugin are null or empty.
+         * @throw IllegalStateException If one or more plugins are not previously configured
+         *        (performed by the method CardResourceServiceConfigurator::configure()).
+         * @since 2.0.0
+         */
+        Builder& withPlugins(const std::vector<std::shared_ptr<Plugin>>& plugins);
+
+        /**
+         * Sets a filter targeting all card readers having a name matching the provided regular
+         * expression.
+         *
+         * <p>This filter is useful for readers associated to "regular" plugins only.
+         *
+         * @param readerNameRegex A regular expression.
+         * @return The current builder instance.
+         * @throw IllegalArgumentException If the readerNameRegex is null, empty or invalid.
+         * @throw IllegalStateException If the filter has already been set.
+         * @since 2.0.0
+         */
+        Builder& withReaderNameRegex(const std::string& readerNameRegex);
+
+        /**
+         * Sets a filter to target all card having the provided specific reader group reference.
+         *
+         * <p>* This filter is useful for readers associated to "pool" plugins only.
+         *
+         * @param readerGroupReference A reader group reference.
+         * @return The current builder instance.
+         * @throw IllegalArgumentException If the readerGroupReference is null or empty.
+         * @throw IllegalStateException If the filter has already been set.
+         * @since 2.0.0
+         */
+        Builder& withReaderGroupReference(const std::string& readerGroupReference);
+
+        /**
+         * Creates a new instance of {@link CardResourceProfileConfigurator} using the current
+         * configuration.
+         *
+         * @return A new instance.
+         * @since 2.0.0
+         */
+        std::shared_ptr<CardResourceProfileConfigurator> build();
+
+    private:
+        /**
+         * 
+         */
+        std::string mProfileName;
+        
+        /**
+         * 
+         */
+        std::shared_ptr<CardResourceProfileExtension> mCardResourceProfileExtensionSpi;
+
+        /**
+         * 
+         */
+        std::vector<std::shared_ptr<Plugin>> mPlugins;
+
+        /**
+         * 
+         */
+        std::string mReaderNameRegex;
+        
+        /**
+         * 
+         */
+        std::string mReaderGroupReference;
+
+        /**
+         *
+         */
+        Builder(const std::string& profileName, 
+                std::shared_ptr<CardResourceProfileExtension> cardResourceProfileExtension);
+    };
+
     /**
      * (package-private)<br>
      * Gets the name of the profile.
@@ -59,7 +160,7 @@ public:
      * @return A not null collection.
      * @since 2.0.0
      */
-    const std::vector<std::shared_ptr<Plugin>> getPlugins() const;
+    const std::vector<std::shared_ptr<Plugin>>& getPlugins() const;
 
     /**
      * (package-private)<br>
@@ -96,130 +197,12 @@ public:
      */
     static Builder* builder(
         const std::string& profileName, 
-        std::shared_ptr<CardResourceProfileExtension> cardResourceProfileExtension) ;
+        std::shared_ptr<CardResourceProfileExtension> cardResourceProfileExtension);
 
     /**
-     * Builder of CardResourceProfileConfigurator.
-     *
-     * @since 2.0.0
+     * C++: should be private but prevent the use of make_shared from Builder class.
      */
-    static class Builder {
-    public:
-        /**
-         * Restricts the scope of the search during the allocation process to the provided plugins.
-         *
-         * <p>If this setter is not invoked, all global configured plugins will be used as search
-         * domain during the allocation process.
-         *
-         * <p><u>Note:</u> The order of the plugins is important because it will be kept during the
-         * allocation process, but the pool plugins allocation strategy is defined by
-         * PoolPluginsConfigurator.
-         *
-         * @param plugins An ordered list of plugins.
-         * @return The current builder instance.
-         * @throws IllegalArgumentException If one or more plugin are null or empty.
-         * @throws IllegalStateException If one or more plugins are not previously configured
-         *         (performed by the method CardResourceServiceConfigurator::configure()).
-         * @since 2.0.0
-         */
-        public Builder withPlugins(Plugin... plugins) {
-        Assert.getInstance().notNull(plugins, "plugins");
-        for (Plugin plugin : plugins) {
-            Assert.getInstance().notNull(plugin, "plugin");
-            this.plugins.add(plugin);
-        }
-        return this;
-        }
-
-        /**
-         * Sets a filter targeting all card readers having a name matching the provided regular
-         * expression.
-         *
-         * <p>This filter is useful for readers associated to "regular" plugins only.
-         *
-         * @param readerNameRegex A regular expression.
-         * @return The current builder instance.
-         * @throws IllegalArgumentException If the readerNameRegex is null, empty or invalid.
-         * @throws IllegalStateException If the filter has already been set.
-         * @since 2.0.0
-         */
-        public Builder withReaderNameRegex(String readerNameRegex) {
-        Assert.getInstance().notEmpty(readerNameRegex, "readerNameRegex");
-        if (this.readerNameRegex != null) {
-            throw new IllegalStateException("Reader name regex has already been set.");
-        }
-        try {
-            Pattern.compile(readerNameRegex);
-        } catch (PatternSyntaxException exception) {
-            throw new IllegalArgumentException("Invalid regular expression: " + readerNameRegex);
-        }
-        this.readerNameRegex = readerNameRegex;
-        return this;
-        }
-
-        /**
-         * Sets a filter to target all card having the provided specific reader group reference.
-         *
-         * <p>* This filter is useful for readers associated to "pool" plugins only.
-         *
-         * @param readerGroupReference A reader group reference.
-         * @return The current builder instance.
-         * @throws IllegalArgumentException If the readerGroupReference is null or empty.
-         * @throws IllegalStateException If the filter has already been set.
-         * @since 2.0.0
-         */
-        public Builder withReaderGroupReference(String readerGroupReference) {
-        Assert.getInstance().notEmpty(readerGroupReference, "readerGroupReference");
-        if (this.readerGroupReference != null) {
-            throw new IllegalStateException("Reader group reference has already been set.");
-        }
-        this.readerGroupReference = readerGroupReference;
-        return this;
-        }
-
-        /**
-         * Creates a new instance of {@link CardResourceProfileConfigurator} using the current
-         * configuration.
-         *
-         * @return A new instance.
-         * @since 2.0.0
-         */
-        public CardResourceProfileConfigurator build() {
-        return new CardResourceProfileConfigurator(this);
-        }
-
-    private:
-        /**
-         * 
-         */
-        std::string mProfileName;
-        
-        /**
-         * 
-         */
-        std::shared_ptr<CardResourceProfileExtension> mCardResourceProfileExtensionSpi;
-
-        /**
-         * 
-         */
-        std::vector<std::shared_ptr<Plugin>> mPlugins;
-
-        /**
-         * 
-         */
-        std::string mReaderNameRegex;
-        
-        /**
-         * 
-         */
-        std::string mReaderGroupReference;
-
-        /**
-         *
-         */
-        Builder(const std::string& profileName, 
-                std::shared_ptr<CardResourceProfileExtension> cardResourceProfileExtension);
-    };
+    CardResourceProfileConfigurator(Builder* builder);
 
 private:
     /**
@@ -230,12 +213,12 @@ private:
     /**
      * 
      */
-    std::shared_ptr<CardResourceProfileExtension> mCardResourceProfileExtensionSpi;
+    const std::shared_ptr<CardResourceProfileExtension> mCardResourceProfileExtensionSpi;
 
     /**
      *
      */
-    std::vector<std::shared_ptr<Plugin>> mPlugins;
+    const std::vector<std::shared_ptr<Plugin>> mPlugins;
 
     /**
      * 
@@ -246,11 +229,6 @@ private:
      * 
      */
     const std::string mReaderGroupReference;
-
-    /**
-     * 
-     */
-    CardResourceProfileConfigurator(Builder* builder);
 };
 
 }

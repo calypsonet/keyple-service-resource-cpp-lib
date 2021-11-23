@@ -121,7 +121,7 @@ private:
     /**
      * The unique instance of the card resource service
      */
-    std::shared_ptr<CardResourceServiceAdapter> mService;
+    CardResourceServiceAdapter& mService;
 
     /**
      * The ordered list of "regular" plugins to use
