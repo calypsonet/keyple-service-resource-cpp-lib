@@ -10,33 +10,17 @@
 # * SPDX-License-Identifier: EPL-2.0                                                              *
 # *************************************************************************************************/
 
-PROJECT(KeypleServiceResourceCppLib C CXX)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-
-SET(VERSION_MAJOR "2")
-SET(VERSION_MINOR "0")
-SET(VERSION_PATCH "0")
-
-SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
-
-SET(PACKAGE_NAME "keyple-service-resource-cpp-lib")
-SET(PACKAGE_VERSION ${VERSION})
-SET(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
-
-SET(CMAKE_MACOSX_RPATH 1)
-SET(CMAKE_CXX_STANDARD 11)
-
 SET(LIBRARY_NAME keypleserviceresourcecpplib)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DKEYPLESERVICERESOURCE_EXPORT")
 
-SET(CALYPSONET_CARD_DIR    "../../../github.com.calypsonet.calypsonet-terminal-card-cpp-api")
-SET(CALYPSONET_READER_DIR  "../../../github.com.calypsonet.calypsonet-terminal-reader-cpp-api")
-SET(KEYPLE_COMMON_DIR      "../../../github.com.calypsonet.keyple-common-cpp-api")
-SET(KEYPLE_PLUGIN_DIR      "../../../github.com.calypsonet.keyple-plugin-cpp-api")
-SET(KEYPLE_SERVICE_DIR     "../../../github.com.calypsonet.keyple-service-cpp-lib")
+SET(CALYPSONET_CARD_DIR    "../../../calypsonet-terminal-card-cpp-api")
+SET(CALYPSONET_READER_DIR  "../../../calypsonet-terminal-reader-cpp-api")
+SET(KEYPLE_COMMON_DIR      "../../../keyple-common-cpp-api")
+SET(KEYPLE_PLUGIN_DIR      "../../../keyple-plugin-cpp-api")
+SET(KEYPLE_SERVICE_DIR     "../../../keyple-service-cpp-lib")
 SET(KEYPLE_SERVICE_LIB     "keypleservicecpplib")
-SET(KEYPLE_UTIL_DIR        "../../../github.com.calypsonet.keyple-util-cpp-lib")
+SET(KEYPLE_UTIL_DIR        "../../../keyple-util-cpp-lib")
 SET(KEYPLE_UTIL_LIB        "keypleutilcpplib")
 
 INCLUDE_DIRECTORIES(
@@ -86,7 +70,4 @@ ADD_LIBRARY(
     ${CMAKE_CURRENT_SOURCE_DIR}/ReaderManagerAdapter.cpp
 )
 
-FIND_LIBRARY(UTIL ${KEYPLE_UTIL_LIB} HINTS ${KEYPLE_UTIL_DIR}/build/bin)
-FIND_LIBRARY(SERVICE ${KEYPLE_SERVICE_LIB} HINTS ${KEYPLE_SERVICE_DIR}/build/bin)
-
-TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${UTIL} ${SERVICE})
+TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${KEYPLE_UTIL_LIB} ${KEYPLE_SERVICE_LIB})

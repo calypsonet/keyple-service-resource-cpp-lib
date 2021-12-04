@@ -35,7 +35,6 @@ namespace service {
 namespace resource {
 
 using namespace keyple::core::service;
-using namespace keyple::core::service::cpp;
 using namespace keyple::core::util::cpp;
 using namespace keyple::core::util::cpp::exception;
 
