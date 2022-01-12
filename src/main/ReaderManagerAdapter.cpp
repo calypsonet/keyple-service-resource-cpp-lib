@@ -76,16 +76,16 @@ std::shared_ptr<CardResource> ReaderManagerAdapter::matches(
 {
     std::shared_ptr<CardResource> cardResource = nullptr;
     std::shared_ptr<SmartCard> smartCard =
-        extension->matches(mReader, 
+        extension->matches(mReader,
                            SmartCardServiceProvider::getService().createCardSelectionManager());
-    
+
     if (smartCard != nullptr) {
         cardResource = getOrCreateCardResource(smartCard);
         mSelectedCardResource = cardResource;
     }
 
     unlock();
-    
+
     return cardResource;
 }
 
@@ -96,19 +96,19 @@ bool ReaderManagerAdapter::lock(std::shared_ptr<CardResource> cardResource,
         if (static_cast<long>(System::currentTimeMillis()) < mLockMaxTimeMillis) {
             return false;
         }
-        
+
         mLogger->warn("Reader '%' automatically unlocked due to a usage duration over than % " \
-                       "milliseconds.",
+                       "milliseconds\n",
                        mReader->getName(),
                        mUsageTimeoutMillis);
     }
-    
+
     if (mSelectedCardResource != cardResource) {
         std::shared_ptr<SmartCard> smartCard =
             extension->matches(
-                mReader, 
+                mReader,
                 SmartCardServiceProvider::getService().createCardSelectionManager());
-        
+
         if (!areEquals(cardResource->getSmartCard(), smartCard)) {
             mSelectedCardResource = nullptr;
             throw IllegalStateException("No card is inserted or its profile does not match the " \
@@ -117,14 +117,14 @@ bool ReaderManagerAdapter::lock(std::shared_ptr<CardResource> cardResource,
 
         mSelectedCardResource = cardResource;
     }
-    
+
     mLockMaxTimeMillis = System::currentTimeMillis() + mUsageTimeoutMillis;
     mIsBusy = true;
-    
+
     return true;
 }
 
-void ReaderManagerAdapter::unlock() 
+void ReaderManagerAdapter::unlock()
 {
     mIsBusy = false;
 }
@@ -150,11 +150,11 @@ std::shared_ptr<CardResource> ReaderManagerAdapter::getOrCreateCardResource(
     /* If none, then create a new one */
     auto cardResource = std::make_shared<CardResource>(mReader, smartCard);
     mCardResources.push_back(cardResource);
-    
+
     return cardResource;
 }
 
-bool ReaderManagerAdapter::areEquals(const std::shared_ptr<SmartCard> s1, 
+bool ReaderManagerAdapter::areEquals(const std::shared_ptr<SmartCard> s1,
                                      const std::shared_ptr<SmartCard> s2) const
 {
     if (s1 == s2) {
@@ -166,10 +166,10 @@ bool ReaderManagerAdapter::areEquals(const std::shared_ptr<SmartCard> s1,
     }
 
     bool hasSamePowerOnData = (s1->getPowerOnData() == s2->getPowerOnData()) ||
-                              (s1->getPowerOnData() != "" && 
+                              (s1->getPowerOnData() != "" &&
                                s1->getPowerOnData() == s2->getPowerOnData());
 
-    bool hasSameFci = Arrays::equals(s1->getSelectApplicationResponse(), 
+    bool hasSameFci = Arrays::equals(s1->getSelectApplicationResponse(),
                                      s2->getSelectApplicationResponse());
 
     return hasSamePowerOnData && hasSameFci;

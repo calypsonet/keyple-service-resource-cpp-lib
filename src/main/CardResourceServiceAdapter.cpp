@@ -36,11 +36,15 @@ using namespace keyple::core::util;
 using namespace keyple::core::util::cpp;
 using namespace keyple::core::util::cpp::exception;
 
-CardResourceServiceAdapter& CardResourceServiceAdapter::getInstance()
-{
-    static CardResourceServiceAdapter INSTANCE;
+std::shared_ptr<CardResourceServiceAdapter> CardResourceServiceAdapter::mInstance;
 
-    return INSTANCE;
+std::shared_ptr<CardResourceServiceAdapter> CardResourceServiceAdapter::getInstance()
+{
+    if (mInstance == nullptr) {
+        mInstance = std::make_shared<CardResourceServiceAdapter>();
+    }
+
+    return mInstance;
 }
 
 const std::string CardResourceServiceAdapter::getCardResourceInfo(
@@ -51,11 +55,11 @@ const std::string CardResourceServiceAdapter::getCardResourceInfo(
         ss << "card resource (" << std::hex << System::identityHashCode(cardResource) << ") - "
            << "reader '" << cardResource->getReader()->getName() << "' (" << std::hex
                          << System::identityHashCode(cardResource->getReader()) << ") - "
-           << "smart card (" << std::hex << System::identityHashCode(cardResource->getSmartCard()) 
+           << "smart card (" << std::hex << System::identityHashCode(cardResource->getSmartCard())
                              << ")";
         return ss.str();
     }
-    
+
     return "";
 }
 
@@ -97,7 +101,7 @@ void CardResourceServiceAdapter::configure(
     mLogger->info("New configuration applied\n");
 }
 
-std::shared_ptr<CardResourceServiceConfigurator> CardResourceServiceAdapter::getConfigurator() const 
+std::shared_ptr<CardResourceServiceConfigurator> CardResourceServiceAdapter::getConfigurator() const
 {
     return std::make_shared<CardResourceServiceConfiguratorAdapter>();
 }
@@ -113,35 +117,35 @@ void CardResourceServiceAdapter::start()
     }
 
     mLogger->info("Starting...\n");
-    
+
     initializeReaderManagers();
     initializeCardProfileManagers();
     removeUnusedReaderManagers();
     startMonitoring();
     mIsStarted = true;
-    
+
     mLogger->info("Started\n");
 }
 
-void CardResourceServiceAdapter::stop() 
+void CardResourceServiceAdapter::stop()
 {
     mIsStarted = false;
-    
+
     stopMonitoring();
-    
+
     mReaderToReaderManagerMap.clear();
     mCardProfileNameToCardProfileManagerMap.clear();
     mCardResourceToPoolPluginMap.clear();
     mPluginToObservableReadersMap.clear();
-    
+
     mLogger->info("Stopped\n");
 }
 
 std::shared_ptr<CardResource> CardResourceServiceAdapter::getCardResource(
-    const std::string& cardResourceProfileName) const 
+    const std::string& cardResourceProfileName) const
 {
     mLogger->debug("Searching a card resource for profile '%'...\n", cardResourceProfileName);
-    
+
     if (!mIsStarted) {
         throw IllegalStateException("The card resource service is not started.");
     }
@@ -216,7 +220,7 @@ void CardResourceServiceAdapter::removeCardResource(std::shared_ptr<CardResource
     if (it != mReaderToReaderManagerMap.end()) {
         readerManager = it->second;
         readerManager->removeCardResource(cardResource);
-        
+
         for (auto& pair : mCardProfileNameToCardProfileManagerMap) {
             pair.second->removeCardResource(cardResource);
         }
@@ -231,9 +235,9 @@ void CardResourceServiceAdapter::onPluginEvent(const std::shared_ptr<PluginEvent
         return;
     }
 
-    std::shared_ptr<Plugin> plugin = 
+    std::shared_ptr<Plugin> plugin =
         SmartCardServiceProvider::getService().getPlugin(pluginEvent->getPluginName());
-    
+
     if (pluginEvent->getType() == PluginEvent::Type::READER_CONNECTED) {
         for (const std::string& readerName : pluginEvent->getReaderNames()) {
             /* Get the new reader from the plugin because it is not yet registered in the service */
@@ -269,10 +273,9 @@ void CardResourceServiceAdapter::onReaderEvent(const std::shared_ptr<CardReaderE
     if (reader != nullptr) {
         /* The reader is registered in the service */
         const std::lock_guard<std::mutex> lock(mMutex);
-        std::shared_ptr<ReaderManagerAdapter> readerManager = nullptr;
         const auto it = mReaderToReaderManagerMap.find(reader);
         if (it != mReaderToReaderManagerMap.end()) {
-            onReaderEvent(readerEvent, readerManager);
+            onReaderEvent(readerEvent, it->second);
         }
     }
 }
@@ -299,9 +302,9 @@ std::shared_ptr<ReaderManagerAdapter> CardResourceServiceAdapter::registerReader
     }
 
     auto readerManager =
-        std::make_shared<ReaderManagerAdapter>(reader, 
-                                               plugin, 
-                                               readerConfiguratorSpi, 
+        std::make_shared<ReaderManagerAdapter>(reader,
+                                               plugin,
+                                               readerConfiguratorSpi,
                                                mConfigurator->getUsageTimeoutMillis());
 
     mReaderToReaderManagerMap.insert({reader, readerManager});
@@ -346,7 +349,7 @@ void CardResourceServiceAdapter::removeUnusedReaderManagers()
     }
 }
 
-void CardResourceServiceAdapter::unregisterReader(std::shared_ptr<Reader> reader, 
+void CardResourceServiceAdapter::unregisterReader(std::shared_ptr<Reader> reader,
                                                   std::shared_ptr<Plugin> plugin)
 {
     mReaderToReaderManagerMap.erase(reader);
@@ -357,8 +360,8 @@ void CardResourceServiceAdapter::unregisterReader(std::shared_ptr<Reader> reader
     if (it != mPluginToObservableReadersMap.end() && observableCardReader != nullptr) {
         observableCardReader->removeObserver(shared_from_this());
         it->second.erase(std::remove(it->second.begin(),
-                                     it->second.end(), 
-                                     observableCardReader), 
+                                     it->second.end(),
+                                     observableCardReader),
                          it->second.end());
     }
 }
@@ -369,7 +372,7 @@ void CardResourceServiceAdapter::startMonitoring()
 
         auto observable = std::dynamic_pointer_cast<ObservablePlugin>(configuredPlugin->getPlugin());
         if (configuredPlugin->isWithPluginMonitoring() && observable != nullptr) {
-            mLogger->info("Start the monitoring of plugin '%'\n", 
+            mLogger->info("Start the monitoring of plugin '%'\n",
                           configuredPlugin->getPlugin()->getName());
             startPluginObservation(configuredPlugin);
         }
@@ -399,7 +402,7 @@ void CardResourceServiceAdapter::stopMonitoring()
         }
 
         const auto it = mPluginToObservableReadersMap.find(configuredPlugin->getPlugin());
-        if (configuredPlugin->isWithReaderMonitoring() && 
+        if (configuredPlugin->isWithReaderMonitoring() &&
             it != mPluginToObservableReadersMap.end()) {
 
             for (auto& reader : it->second) {
@@ -421,8 +424,8 @@ std::shared_ptr<Reader> CardResourceServiceAdapter::getReader(const std::string&
     return nullptr;
 }
 
-void CardResourceServiceAdapter::onReaderConnected(std::shared_ptr<Reader> reader, 
-                                                   std::shared_ptr<Plugin> plugin) 
+void CardResourceServiceAdapter::onReaderConnected(std::shared_ptr<Reader> reader,
+                                                   std::shared_ptr<Plugin> plugin)
 {
     std::shared_ptr<ReaderManagerAdapter> readerManager = registerReader(reader, plugin);
     for (auto pair : mCardProfileNameToCardProfileManagerMap) {
@@ -436,13 +439,13 @@ void CardResourceServiceAdapter::onReaderConnected(std::shared_ptr<Reader> reade
     }
 }
 
-void CardResourceServiceAdapter::startMonitoring(std::shared_ptr<Reader> reader, 
+void CardResourceServiceAdapter::startMonitoring(std::shared_ptr<Reader> reader,
                                                  std::shared_ptr<Plugin> plugin)
 {
     auto observable = std::dynamic_pointer_cast<ObservableCardReader>(reader);
     if (observable != nullptr) {
         for (auto& configuredPlugin : mConfigurator->getConfiguredPlugins()) {
-            if (configuredPlugin->getPlugin() == plugin && 
+            if (configuredPlugin->getPlugin() == plugin &&
                 configuredPlugin->isWithReaderMonitoring()) {
                 mLogger->info("Start the monitoring of reader '%'\n", reader->getName());
                 startReaderObservation(observable, configuredPlugin);
@@ -454,7 +457,7 @@ void CardResourceServiceAdapter::startMonitoring(std::shared_ptr<Reader> reader,
 void CardResourceServiceAdapter::startPluginObservation(
     std::shared_ptr<ConfiguredPlugin> configuredPlugin)
 {
-    auto observablePlugin = 
+    auto observablePlugin =
         std::dynamic_pointer_cast<ObservablePlugin>(configuredPlugin->getPlugin());
     observablePlugin->setPluginObservationExceptionHandler(
         configuredPlugin->getPluginObservationExceptionHandlerSpi());
@@ -462,7 +465,7 @@ void CardResourceServiceAdapter::startPluginObservation(
 }
 
 void CardResourceServiceAdapter::startReaderObservation(
-    std::shared_ptr<ObservableCardReader> observableReader, 
+    std::shared_ptr<ObservableCardReader> observableReader,
     std::shared_ptr<ConfiguredPlugin> configuredPlugin)
 {
     observableReader->setReaderObservationExceptionHandler(
@@ -471,35 +474,35 @@ void CardResourceServiceAdapter::startReaderObservation(
     observableReader->startCardDetection(ObservableCardReader::DetectionMode::REPEATING);
 }
 
-void CardResourceServiceAdapter::onReaderDisconnected(std::shared_ptr<Reader> reader, 
+void CardResourceServiceAdapter::onReaderDisconnected(std::shared_ptr<Reader> reader,
                                                       std::shared_ptr<Plugin> plugin)
 {
     const auto it = mReaderToReaderManagerMap.find(reader);
     if (it != mReaderToReaderManagerMap.end()) {
-        mLogger->debug("Remove disconnected reader '%' and all associated card resources\n", 
+        mLogger->debug("Remove disconnected reader '%' and all associated card resources\n",
                        reader->getName());
-    
+
         onCardRemoved(it->second);
         unregisterReader(reader, plugin);
     }
 }
 
-void CardResourceServiceAdapter::onReaderEvent(const std::shared_ptr<CardReaderEvent> readerEvent, 
-                                               std::shared_ptr<ReaderManagerAdapter> readerManager) 
+void CardResourceServiceAdapter::onReaderEvent(const std::shared_ptr<CardReaderEvent> readerEvent,
+                                               std::shared_ptr<ReaderManagerAdapter> readerManager)
 {
     if (readerEvent->getType() == CardReaderEvent::Type::CARD_INSERTED ||
         readerEvent->getType() == CardReaderEvent::Type::CARD_MATCHED) {
         mLogger->debug("Create new card resources associated with reader '%' matching the new " \
                        "card inserted\n",
                        readerManager->getReader()->getName());
-        
+
         onCardInserted(readerManager);
 
     } else {
         mLogger->debug("Remove all card resources associated with reader '%' caused by a card " \
                        "removal or reader unregistration\n",
                        readerManager->getReader()->getName());
-    
+
         onCardRemoved(readerManager);
     }
 }

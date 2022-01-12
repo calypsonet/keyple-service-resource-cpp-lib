@@ -105,7 +105,7 @@ private:
     /**
      *
      */
-    const std::unique_ptr<Logger> mLogger = 
+    const std::unique_ptr<Logger> mLogger =
         LoggerFactory::getLogger(typeid(CardProfileManagerAdapter));
 
     /**
@@ -121,7 +121,7 @@ private:
     /**
      * The unique instance of the card resource service
      */
-    CardResourceServiceAdapter& mService;
+    std::shared_ptr<CardResourceServiceAdapter> mService;
 
     /**
      * The ordered list of "regular" plugins to use

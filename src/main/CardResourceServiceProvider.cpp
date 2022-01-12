@@ -22,7 +22,7 @@ namespace resource {
 
 CardResourceServiceProvider::CardResourceServiceProvider() {}
 
-CardResourceService& CardResourceServiceProvider::getService()
+std::shared_ptr<CardResourceService> CardResourceServiceProvider::getService()
 {
     return CardResourceServiceAdapter::getInstance();
 }

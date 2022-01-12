@@ -96,9 +96,9 @@ public:
         ConfiguredPlugin(
             std::shared_ptr<Plugin> plugin,
             std::shared_ptr<ReaderConfiguratorSpi> readerConfiguratorSpi,
-            std::shared_ptr<PluginObservationExceptionHandlerSpi> 
+            std::shared_ptr<PluginObservationExceptionHandlerSpi>
                 pluginObservationExceptionHandlerSpi,
-            std::shared_ptr<CardReaderObservationExceptionHandlerSpi> 
+            std::shared_ptr<CardReaderObservationExceptionHandlerSpi>
                 readerObservationExceptionHandlerSpi);
 
         /**
@@ -151,39 +151,39 @@ public:
          *         monitoring is requested.
          * @since 2.0.0
          */
-        std::shared_ptr<CardReaderObservationExceptionHandlerSpi> 
+        std::shared_ptr<CardReaderObservationExceptionHandlerSpi>
             getReaderObservationExceptionHandlerSpi() const;
 
     private:
         /**
-         * 
+         *
          */
         std::shared_ptr<Plugin> mPlugin;
 
         /**
-         * 
+         *
          */
         std::shared_ptr<ReaderConfiguratorSpi> mReaderConfiguratorSpi;
 
         /**
-         * 
+         *
          */
         bool mWithPluginMonitoring;
 
         /**
-         * 
+         *
          */
         std::shared_ptr<PluginObservationExceptionHandlerSpi> mPluginObservationExceptionHandlerSpi;
 
         /**
-         * 
+         *
          */
         bool mWithReaderMonitoring;
 
         /**
-         * 
+         *
          */
-        std::shared_ptr<CardReaderObservationExceptionHandlerSpi> 
+        std::shared_ptr<CardReaderObservationExceptionHandlerSpi>
             mReaderObservationExceptionHandlerSpi;
     };
 
@@ -195,7 +195,7 @@ public:
     class Builder {
     public:
         /**
-         * 
+         *
          */
         friend class PluginsConfigurator;
 
@@ -242,7 +242,7 @@ public:
          * @throw IllegalStateException If the plugin has already been configured.
          * @since 2.0.0
          */
-        Builder& addPlugin(std::shared_ptr<Plugin> plugin, 
+        Builder& addPlugin(std::shared_ptr<Plugin> plugin,
                            std::shared_ptr<ReaderConfiguratorSpi> readerConfiguratorSpi);
 
         /**
@@ -274,9 +274,9 @@ public:
         Builder& addPluginWithMonitoring(
             std::shared_ptr<Plugin> plugin,
             std::shared_ptr<ReaderConfiguratorSpi> readerConfiguratorSpi,
-            std::shared_ptr<PluginObservationExceptionHandlerSpi> 
+            std::shared_ptr<PluginObservationExceptionHandlerSpi>
                 pluginObservationExceptionHandlerSpi,
-            std::shared_ptr<CardReaderObservationExceptionHandlerSpi> 
+            std::shared_ptr<CardReaderObservationExceptionHandlerSpi>
                 readerObservationExceptionHandlerSpi);
 
         /**
@@ -290,7 +290,7 @@ public:
 
     private:
         /**
-         * 
+         *
          */
         AllocationStrategy mAllocationStrategy;
 
@@ -300,27 +300,27 @@ public:
         bool mAllocationStrategyConfigured;
 
         /**
-         * 
+         *
          */
         int mUsageTimeoutMillis;
 
         /**
-         * 
+         *
          */
         bool mUsageTimeoutMillisConfigured;
-        
+
         /**
-         * 
+         *
          */
         std::vector<std::shared_ptr<Plugin>> mPlugins;
 
         /**
-         * 
+         *
          */
         std::vector<std::shared_ptr<ConfiguredPlugin>> mConfiguredPlugins;
 
         /**
-         * 
+         *
          */
         Builder();
     };
@@ -376,22 +376,22 @@ public:
 
 private:
     /**
-     * 
+     *
      */
     const AllocationStrategy mAllocationStrategy;
-    
+
     /**
-     * 
+     *
      */
     const int mUsageTimeoutMillis;
-    
+
     /**
-     * 
+     *
      */
     const std::vector<std::shared_ptr<Plugin>> mPlugins;
 
     /**
-     * 
+     *
      */
     const std::vector<std::shared_ptr<ConfiguredPlugin>> mConfiguredPlugins;
 };

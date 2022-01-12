@@ -57,8 +57,8 @@ class CardProfileManagerAdapter;
  * @since 2.0.0
  */
 class CardResourceServiceAdapter final
-: public CardResourceService, 
-  public PluginObserverSpi, 
+: public CardResourceService,
+  public PluginObserverSpi,
   public CardReaderObserverSpi,
   public std::enable_shared_from_this<CardResourceServiceAdapter> {
 public:
@@ -69,7 +69,7 @@ public:
      * @return A not null reference.
      * @since 2.0.0
      */
-    static CardResourceServiceAdapter& getInstance();
+    static std::shared_ptr<CardResourceServiceAdapter> getInstance();
 
     /**
      * (package-private)<br>
@@ -89,7 +89,7 @@ public:
      * @return Null if there is no reader manager associated.
      * @since 2.0.0
      */
-    std::shared_ptr<ReaderManagerAdapter> getReaderManager(const std::shared_ptr<CardReader> reader) 
+    std::shared_ptr<ReaderManagerAdapter> getReaderManager(const std::shared_ptr<CardReader> reader)
         const;
 
     /**
@@ -100,7 +100,7 @@ public:
      * @param poolPlugin The associated pool plugin.
      * @since 2.0.0
      */
-    void registerPoolCardResource(std::shared_ptr<CardResource> cardResource, 
+    void registerPoolCardResource(std::shared_ptr<CardResource> cardResource,
                                   std::shared_ptr<PoolPlugin> poolPlugin);
 
     /**
@@ -142,7 +142,7 @@ public:
      *
      * @since 2.0.0
      */
-    std::shared_ptr<CardResource> getCardResource(const std::string& cardResourceProfileName) const 
+    std::shared_ptr<CardResource> getCardResource(const std::string& cardResourceProfileName) const
         override;
 
     /**
@@ -164,7 +164,7 @@ public:
      *
      * @since 2.0.0
      */
-    void onPluginEvent(const std::shared_ptr<PluginEvent> pluginEvent) override;    
+    void onPluginEvent(const std::shared_ptr<PluginEvent> pluginEvent) override;
 
     /**
      * {@inheritDoc}
@@ -175,9 +175,14 @@ public:
 
 private:
     /**
-     * 
+     *
      */
-    const std::unique_ptr<Logger> mLogger = 
+    static std::shared_ptr<CardResourceServiceAdapter> mInstance;
+
+    /**
+     *
+     */
+    const std::unique_ptr<Logger> mLogger =
         LoggerFactory::getLogger(typeid(CardResourceServiceAdapter));
 
     /**
@@ -219,7 +224,7 @@ private:
     bool mIsStarted;
 
     /**
-     * 
+     *
      */
     std::mutex mMutex;
 
@@ -327,7 +332,7 @@ private:
      * @param observableReader The observable reader to observe.
      * @param configuredPlugin The associated configuration.
      */
-    void startReaderObservation(std::shared_ptr<ObservableCardReader> observableReader, 
+    void startReaderObservation(std::shared_ptr<ObservableCardReader> observableReader,
                                 std::shared_ptr<ConfiguredPlugin> configuredPlugin);
 
     /**
@@ -349,7 +354,7 @@ private:
      * @param readerEvent The reader event.
      * @param readerManager The reader manager associated to the reader.
      */
-    void onReaderEvent(const std::shared_ptr<CardReaderEvent> readerEvent, 
+    void onReaderEvent(const std::shared_ptr<CardReaderEvent> readerEvent,
                        std::shared_ptr<ReaderManagerAdapter> readerManager);
 
     /**

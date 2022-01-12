@@ -20,19 +20,19 @@ namespace service {
 namespace resource {
 
 /**
- * Provider of the {@link CardResourceService}.
+ * Provider of the CardResourceService.
  *
  * @since 2.0.0
  */
 class CardResourceServiceProvider final {
 public:
     /**
-     * Gets the unique instance of {@link CardResourceService}.
+     * Gets the unique instance of CardResourceService.
      *
      * @return A not null reference.
      * @since 2.0.0
      */
-    static CardResourceService& getService();
+    static std::shared_ptr<CardResourceService> getService();
 
 private:
     /**

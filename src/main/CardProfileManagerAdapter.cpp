@@ -62,7 +62,7 @@ CardProfileManagerAdapter::CardProfileManagerAdapter(
     }
 }
 
-void CardProfileManagerAdapter::removeCardResource(std::shared_ptr<CardResource> cardResource) 
+void CardProfileManagerAdapter::removeCardResource(std::shared_ptr<CardResource> cardResource)
 {
     const auto it = std::find(mCardResources.begin(), mCardResources.end(), cardResource);
     if (it != mCardResources.end()) {
@@ -97,7 +97,7 @@ std::shared_ptr<CardResource> CardProfileManagerAdapter::getCardResource()
 {
     std::shared_ptr<CardResource> cardResource = nullptr;
     long maxTime = System::currentTimeMillis() + mGlobalConfiguration->getTimeoutMillis();
-    
+
     do {
         if (!mPlugins.empty()) {
             if (!mPoolPlugins.empty()) {
@@ -108,9 +108,9 @@ std::shared_ptr<CardResource> CardProfileManagerAdapter::getCardResource()
         } else {
             cardResource = getPoolCardResource();
         }
-    
+
         pauseIfNeeded(cardResource);
-    
+
     } while (cardResource == nullptr &&
              mGlobalConfiguration->isBlockingAllocationMode() &&
              System::currentTimeMillis() <= static_cast<unsigned long long>(maxTime));
@@ -135,7 +135,7 @@ void CardProfileManagerAdapter::initializeCardResourcesUsingDefaultPlugins()
 {
     const auto& poolPlugins = mGlobalConfiguration->getPoolPlugins();
     mPoolPlugins.insert(std::end(mPoolPlugins), std::begin(poolPlugins), std::end(poolPlugins));
-    
+
     for (const auto& plugin : mGlobalConfiguration->getPlugins()) {
         mPlugins.push_back(plugin);
         initializeCardResources(plugin);
@@ -145,7 +145,7 @@ void CardProfileManagerAdapter::initializeCardResourcesUsingDefaultPlugins()
 void CardProfileManagerAdapter::initializeCardResources(std::shared_ptr<Plugin> plugin)
 {
     for (const auto& reader : plugin->getReaders()) {
-        std::shared_ptr<ReaderManagerAdapter> readerManager = mService.getReaderManager(reader);
+        std::shared_ptr<ReaderManagerAdapter> readerManager = mService->getReaderManager(reader);
         initializeCardResource(readerManager);
     }
 }
@@ -181,7 +181,7 @@ void CardProfileManagerAdapter::initializeCardResource(
 
 bool CardProfileManagerAdapter::isReaderAccepted(std::shared_ptr<CardReader> reader)
 {
-    return mReaderNameRegexPattern == nullptr || 
+    return mReaderNameRegexPattern == nullptr ||
            mReaderNameRegexPattern->matcher(reader->getName())->matches();
 }
 
@@ -224,12 +224,12 @@ std::shared_ptr<CardResource> CardProfileManagerAdapter::getRegularCardResource(
     for (const std::shared_ptr<CardResource>& cardResource : mCardResources) {
         std::shared_ptr<CardReader> reader = cardResource->getReader();
         //FIXME synchronized (reader) {
-            std::shared_ptr<ReaderManagerAdapter> readerManager = 
-                mService.getReaderManager(reader);
+            std::shared_ptr<ReaderManagerAdapter> readerManager =
+                mService->getReaderManager(reader);
             if (readerManager != nullptr) {
                 try {
                     if (readerManager->lock(
-                            cardResource, 
+                            cardResource,
                             mCardProfile->getCardResourceProfileExtensionSpi())) {
                         int cardResourceIndex = Arrays::indexOf(mCardResources, cardResource);
                         updateCardResourcesOrder(cardResourceIndex);
@@ -248,7 +248,7 @@ std::shared_ptr<CardResource> CardProfileManagerAdapter::getRegularCardResource(
 
     /* Remove unusable card resources identified */
     for (const auto& cardResource : unusableCardResources) {
-        mService.removeCardResource(cardResource);
+        mService->removeCardResource(cardResource);
     }
 
     return result;
@@ -257,7 +257,7 @@ std::shared_ptr<CardResource> CardProfileManagerAdapter::getRegularCardResource(
 void CardProfileManagerAdapter::updateCardResourcesOrder(const int cardResourceIndex)
 {
     if (mGlobalConfiguration->getAllocationStrategy() == AllocationStrategy::CYCLIC) {
-        std::rotate(mCardResources.begin(), 
+        std::rotate(mCardResources.begin(),
                     mCardResources.begin() - cardResourceIndex - 1,
                     mCardResources.end());
     } else if (mGlobalConfiguration->getAllocationStrategy() == AllocationStrategy::RANDOM) {
@@ -273,14 +273,14 @@ std::shared_ptr<CardResource> CardProfileManagerAdapter::getPoolCardResource()
             std::shared_ptr<Reader> reader =
                 poolPlugin->allocateReader(mCardProfile->getReaderGroupReference());
             if (reader != nullptr) {
-                std::shared_ptr<SmartCard> smartCard = 
+                std::shared_ptr<SmartCard> smartCard =
                     mCardProfile->getCardResourceProfileExtensionSpi()
-                                ->matches(reader, 
+                                ->matches(reader,
                                           SmartCardServiceProvider::getService()
                                               .createCardSelectionManager());
                 if (smartCard != nullptr) {
                     auto cardResource = std::make_shared<CardResource>(reader, smartCard);
-                    mService.registerPoolCardResource(cardResource, poolPlugin);
+                    mService->registerPoolCardResource(cardResource, poolPlugin);
                     return cardResource;
                 }
             }

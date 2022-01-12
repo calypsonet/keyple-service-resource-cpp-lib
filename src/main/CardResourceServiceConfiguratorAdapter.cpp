@@ -29,13 +29,14 @@ using namespace keyple::core::util;
 using namespace keyple::core::util::cpp;
 using namespace keyple::core::util::cpp::exception;
 
-CardResourceServiceConfiguratorAdapter::CardResourceServiceConfiguratorAdapter() {}
+CardResourceServiceConfiguratorAdapter::CardResourceServiceConfiguratorAdapter()
+: mIsBlockingAllocationMode(false) {}
 
 CardResourceServiceConfigurator& CardResourceServiceConfiguratorAdapter::withPlugins(
     std::shared_ptr<PluginsConfigurator> pluginsConfigurator)
 {
     Assert::getInstance().notNull(pluginsConfigurator, "pluginsConfigurator");
-    
+
     /* C++: Java checks against nullity here... */
     if (!mPlugins.empty()) {
         throw IllegalStateException("Plugins already configured.");
@@ -45,7 +46,7 @@ CardResourceServiceConfigurator& CardResourceServiceConfiguratorAdapter::withPlu
     mConfiguredPlugins = pluginsConfigurator->getConfiguredPlugins();
     mAllocationStrategy = pluginsConfigurator->getAllocationStrategy();
     mUsageTimeoutMillis = pluginsConfigurator->getUsageTimeoutMillis();
-    
+
     return *this;
 }
 
@@ -53,7 +54,7 @@ CardResourceServiceConfigurator& CardResourceServiceConfiguratorAdapter::withPoo
     std::shared_ptr<PoolPluginsConfigurator> poolPluginsConfigurator)
 {
     Assert::getInstance().notNull(poolPluginsConfigurator, "poolPluginsConfigurator");
-    
+
     /* C++: Java checks against nullity here... */
     if (!mPoolPlugins.empty()) {
         throw IllegalStateException("Pool plugins already configured.");
@@ -61,12 +62,12 @@ CardResourceServiceConfigurator& CardResourceServiceConfiguratorAdapter::withPoo
 
     mPoolPlugins = poolPluginsConfigurator->getPoolPlugins();
     mUsePoolFirst = poolPluginsConfigurator->isUsePoolFirst();
-    
+
     return *this;
 }
 
 CardResourceServiceConfigurator& CardResourceServiceConfiguratorAdapter::withCardResourceProfiles(
-    const std::vector<std::shared_ptr<CardResourceProfileConfigurator>>& 
+    const std::vector<std::shared_ptr<CardResourceProfileConfigurator>>&
         cardResourceProfileConfigurators)
 {
     if (!mCardResourceProfileConfigurators.empty()) {
@@ -86,7 +87,7 @@ CardResourceServiceConfigurator& CardResourceServiceConfiguratorAdapter::withBlo
 {
     Assert::getInstance().greaterOrEqual(cycleDurationMillis, 1, "cycleDurationMillis")
                          .greaterOrEqual(timeoutMillis, 1, "timeoutMillis");
-    
+
     if (mIsBlockingAllocationMode) {
         throw IllegalStateException("Allocation mode already configured.");
     }
@@ -94,11 +95,11 @@ CardResourceServiceConfigurator& CardResourceServiceConfiguratorAdapter::withBlo
     mIsBlockingAllocationMode = true;
     mCycleDurationMillis = cycleDurationMillis;
     mTimeoutMillis = timeoutMillis;
-   
+
     return *this;
 }
 
-void CardResourceServiceConfiguratorAdapter::configure() 
+void CardResourceServiceConfiguratorAdapter::configure()
 {
     /*
      * Configure default values
@@ -120,7 +121,7 @@ void CardResourceServiceConfiguratorAdapter::configure()
     std::vector<std::shared_ptr<Plugin>> allPlugins;
     Arrays::addAll(allPlugins, mPlugins);
     Arrays::addAll(allPlugins, mPoolPlugins);
-    
+
     if (allPlugins.empty()) {
         throw IllegalStateException("No plugin configured.");
     }
@@ -134,7 +135,7 @@ void CardResourceServiceConfiguratorAdapter::configure()
     std::vector<std::string> profileNames;
     for (const auto& profile : mCardResourceProfileConfigurators) {
         /* Check name */
-        if (std::find(profileNames.begin(), profileNames.end(), profile->getProfileName()) == 
+        if (std::find(profileNames.begin(), profileNames.end(), profile->getProfileName()) !=
                 profileNames.end()) {
             throw IllegalStateException("Some card resource profiles are configured with the same" \
                                         " profile name.");
@@ -161,7 +162,7 @@ void CardResourceServiceConfiguratorAdapter::configure()
     }
 
     /* Apply the configuration */
-    CardResourceServiceAdapter::getInstance().configure(shared_from_this());
+    CardResourceServiceAdapter::getInstance()->configure(shared_from_this());
 }
 
 const std::vector<std::shared_ptr<Plugin>> CardResourceServiceConfiguratorAdapter::computeUsedPlugins(
@@ -180,13 +181,13 @@ const std::vector<std::shared_ptr<Plugin>> CardResourceServiceConfiguratorAdapte
     return usedPlugins;
 }
 
-const std::vector<std::shared_ptr<Plugin>>& CardResourceServiceConfiguratorAdapter::getPlugins() 
+const std::vector<std::shared_ptr<Plugin>>& CardResourceServiceConfiguratorAdapter::getPlugins()
     const
 {
     return mPlugins;
 }
 
-const std::vector<std::shared_ptr<ConfiguredPlugin>>& 
+const std::vector<std::shared_ptr<ConfiguredPlugin>>&
     CardResourceServiceConfiguratorAdapter::getConfiguredPlugins() const
 {
     return mConfiguredPlugins;
@@ -202,7 +203,7 @@ int CardResourceServiceConfiguratorAdapter::getUsageTimeoutMillis() const
     return mUsageTimeoutMillis;
 }
 
-const std::vector<std::shared_ptr<PoolPlugin>>& CardResourceServiceConfiguratorAdapter::getPoolPlugins() 
+const std::vector<std::shared_ptr<PoolPlugin>>& CardResourceServiceConfiguratorAdapter::getPoolPlugins()
     const
 {
     return mPoolPlugins;
@@ -213,7 +214,7 @@ bool CardResourceServiceConfiguratorAdapter::isUsePoolFirst() const
     return mUsePoolFirst;
 }
 
-const std::vector<std::shared_ptr<CardResourceProfileConfigurator>>& 
+const std::vector<std::shared_ptr<CardResourceProfileConfigurator>>&
     CardResourceServiceConfiguratorAdapter::getCardResourceProfileConfigurators() const
 {
     return mCardResourceProfileConfigurators;
@@ -234,7 +235,7 @@ int CardResourceServiceConfiguratorAdapter::getTimeoutMillis() const
     return mTimeoutMillis;
 }
 
-const std::vector<std::shared_ptr<PoolPlugin>> 
+const std::vector<std::shared_ptr<PoolPlugin>>
     CardResourceServiceConfiguratorAdapter::extractPoolPlugins(
         const std::vector<std::shared_ptr<Plugin>>& plugins) const
 {
@@ -250,9 +251,9 @@ const std::vector<std::shared_ptr<PoolPlugin>>
     return results;
 }
 
-const std::vector<std::shared_ptr<ConfiguredPlugin>> 
+const std::vector<std::shared_ptr<ConfiguredPlugin>>
     CardResourceServiceConfiguratorAdapter::getConfiguredPlugins(
-        const std::vector<std::shared_ptr<Plugin>>& plugins) const 
+        const std::vector<std::shared_ptr<Plugin>>& plugins) const
 {
     std::vector<std::shared_ptr<ConfiguredPlugin>> results;
 
@@ -261,7 +262,7 @@ const std::vector<std::shared_ptr<ConfiguredPlugin>>
             results.push_back(configuredRegularPlugin);
         }
     }
-    
+
     return results;
 }
 
