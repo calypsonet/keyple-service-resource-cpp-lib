@@ -19,8 +19,9 @@ SET(CALYPSONET_READER_DIR  "../../../calypsonet-terminal-reader-cpp-api")
 SET(KEYPLE_COMMON_DIR      "../../../keyple-common-cpp-api")
 SET(KEYPLE_PLUGIN_DIR      "../../../keyple-plugin-cpp-api")
 SET(KEYPLE_SERVICE_DIR     "../../../keyple-service-cpp-lib")
-SET(KEYPLE_SERVICE_LIB     "keypleservicecpplib")
 SET(KEYPLE_UTIL_DIR        "../../../keyple-util-cpp-lib")
+
+SET(KEYPLE_SERVICE_LIB     "keypleservicecpplib")
 SET(KEYPLE_UTIL_LIB        "keypleutilcpplib")
 
 INCLUDE_DIRECTORIES(
@@ -65,6 +66,7 @@ ADD_LIBRARY(
     ${CMAKE_CURRENT_SOURCE_DIR}/CardResourceProfileConfigurator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CardResourceServiceAdapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CardResourceServiceConfiguratorAdapter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CardResourceServiceProvider.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/PluginsConfigurator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/PoolPluginsConfigurator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ReaderManagerAdapter.cpp

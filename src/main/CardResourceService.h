@@ -13,6 +13,7 @@
 #pragma once
 
 /* Keyple Service Resource */
+#include "CardResource.h"
 #include "CardResourceServiceConfigurator.h"
 
 namespace keyple {
@@ -44,7 +45,7 @@ namespace resource {
 class CardResourceService {
 public:
     /**
-     * 
+     *
      */
     virtual ~CardResourceService() = default;
 
