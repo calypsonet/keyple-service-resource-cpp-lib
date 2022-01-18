@@ -11,7 +11,7 @@
 # *************************************************************************************************/
 
 PROJECT(KeypleServiceResourceCppLib C CXX)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
 SET(CMAKE_PROJECT_VERSION_MAJOR "2")
 SET(CMAKE_PROJECT_VERSION_MINOR "0")
