@@ -195,7 +195,7 @@ private:
      * Indicates the time after which the reader will be automatically unlocked if a new lock is
      * requested.
      */
-    long mLockMaxTimeMillis;
+    uint64_t mLockMaxTimeMillis;
 
     /**
      * Current selected card resource

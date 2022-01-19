@@ -96,7 +96,7 @@ void CardProfileManagerAdapter::onCardInserted(std::shared_ptr<ReaderManagerAdap
 std::shared_ptr<CardResource> CardProfileManagerAdapter::getCardResource()
 {
     std::shared_ptr<CardResource> cardResource = nullptr;
-    long maxTime = System::currentTimeMillis() + mGlobalConfiguration->getTimeoutMillis();
+    uint64_t maxTime = System::currentTimeMillis() + mGlobalConfiguration->getTimeoutMillis();
 
     do {
         if (!mPlugins.empty()) {
@@ -113,7 +113,7 @@ std::shared_ptr<CardResource> CardProfileManagerAdapter::getCardResource()
 
     } while (cardResource == nullptr &&
              mGlobalConfiguration->isBlockingAllocationMode() &&
-             System::currentTimeMillis() <= static_cast<unsigned long long>(maxTime));
+             System::currentTimeMillis() <= maxTime);
 
     return cardResource;
 }

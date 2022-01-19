@@ -39,7 +39,7 @@ public:
      *
      * @since 2.0.0
      */
-    class Builder {
+    class KEYPLESERVICERESOURCE_API Builder {
     public:
         /**
          * 

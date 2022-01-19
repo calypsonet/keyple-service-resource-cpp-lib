@@ -23,9 +23,8 @@
 #include "PluginObservationExceptionHandlerSpi.h"
 
 /* Keyple Service Resource */
+#include "KeypleServiceResourceExport.h"
 #include "ReaderConfiguratorSpi.h"
-
-
 
 namespace keyple {
 namespace core {
@@ -42,7 +41,7 @@ using namespace keyple::core::service::resource::spi;
  *
  * @since 2.0.0
  */
-class PluginsConfigurator final {
+class KEYPLESERVICERESOURCE_API PluginsConfigurator final {
 public:
     /**
      * Enumeration of all card resource service allocation strategies.
@@ -192,7 +191,7 @@ public:
      *
      * @since 2.0.0
      */
-    class Builder {
+    class KEYPLESERVICERESOURCE_API Builder {
     public:
         /**
          *

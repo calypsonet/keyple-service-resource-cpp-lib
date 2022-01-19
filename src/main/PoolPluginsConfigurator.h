@@ -18,6 +18,9 @@
 /* Keyple Core Service */
 #include "PoolPlugin.h"
 
+/* Keyple Service Resource */
+#include "KeypleServiceResourceExport.h"
+
 namespace keyple {
 namespace core {
 namespace service {
@@ -30,14 +33,14 @@ using namespace keyple::core::service;
  *
  * @since 2.0.0
  */
-class PoolPluginsConfigurator final {
+class KEYPLESERVICERESOURCE_API PoolPluginsConfigurator final {
 public:
     /**
      * Builder of PoolPluginsConfigurator.
      *
      * @since 2.0.0
      */
-    class Builder {
+    class KEYPLESERVICERESOURCE_API Builder {
     public:
         /**
          * 

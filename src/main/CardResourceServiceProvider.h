@@ -14,6 +14,9 @@
 
 #include "CardResourceService.h"
 
+/* Keyple Service Resource */
+#include "KeypleServiceResourceExport.h"
+
 namespace keyple {
 namespace core {
 namespace service {
@@ -24,7 +27,7 @@ namespace resource {
  *
  * @since 2.0.0
  */
-class CardResourceServiceProvider final {
+class KEYPLESERVICERESOURCE_API CardResourceServiceProvider final {
 public:
     /**
      * Gets the unique instance of CardResourceService.
