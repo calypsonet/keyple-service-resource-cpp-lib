@@ -33,7 +33,7 @@ using Builder = CardResourceProfileConfigurator::Builder;
 
 CardResourceProfileConfigurator::CardResourceProfileConfigurator(Builder* builder)
 : mProfileName(builder->mProfileName),
-  mCardResourceProfileExtensionSpi(builder->mCardResourceProfileExtensionSpi),
+  mCardResourceProfileExtension(builder->mCardResourceProfileExtension),
   mPlugins(builder->mPlugins),
   mReaderNameRegex(builder->mReaderNameRegex),
   mReaderGroupReference(builder->mReaderGroupReference)
@@ -48,9 +48,9 @@ const std::string& CardResourceProfileConfigurator::getProfileName() const
 }
 
 std::shared_ptr<CardResourceProfileExtension>
-    CardResourceProfileConfigurator::getCardResourceProfileExtensionSpi() const
+    CardResourceProfileConfigurator::getCardResourceProfileExtension() const
 {
-    return mCardResourceProfileExtensionSpi;
+    return mCardResourceProfileExtension;
 }
 
 const std::vector<std::shared_ptr<Plugin>>& CardResourceProfileConfigurator::getPlugins() const
@@ -69,9 +69,9 @@ const std::string& CardResourceProfileConfigurator::getReaderGroupReference() co
 }
 
 Builder* CardResourceProfileConfigurator::builder(
-    const std::string& profileName, 
+    const std::string& profileName,
     std::shared_ptr<CardResourceProfileExtension> cardResourceProfileExtension)
-{    
+{
     return new Builder(profileName, cardResourceProfileExtension);
 }
 
@@ -79,8 +79,8 @@ Builder* CardResourceProfileConfigurator::builder(
 
 Builder::Builder(const std::string& profileName,
                  std::shared_ptr<CardResourceProfileExtension> cardResourceProfileExtension)
-: mProfileName(profileName), 
-  mCardResourceProfileExtensionSpi(cardResourceProfileExtension),
+: mProfileName(profileName),
+  mCardResourceProfileExtension(cardResourceProfileExtension),
   mReaderNameRegex(""),
   mReaderGroupReference("")
 {
@@ -100,7 +100,7 @@ Builder& Builder::withPlugins(const std::vector<std::shared_ptr<Plugin>>& plugin
 Builder& Builder::withReaderNameRegex(const std::string& readerNameRegex)
 {
     Assert::getInstance().notEmpty(readerNameRegex, "readerNameRegex");
-    
+
     if (mReaderNameRegex != "") {
         throw IllegalStateException("Reader name regex has already been set.");
     }
@@ -111,7 +111,7 @@ Builder& Builder::withReaderNameRegex(const std::string& readerNameRegex)
         (void)exception;
         throw IllegalArgumentException("Invalid regular expression: " + readerNameRegex);
     }
-    
+
     mReaderNameRegex = readerNameRegex;
 
     return *this;
@@ -120,13 +120,13 @@ Builder& Builder::withReaderNameRegex(const std::string& readerNameRegex)
 Builder& Builder::withReaderGroupReference(const std::string& readerGroupReference)
 {
     Assert::getInstance().notEmpty(readerGroupReference, "readerGroupReference");
-    
+
     if (mReaderGroupReference != "") {
         throw IllegalStateException("Reader group reference has already been set.");
     }
 
     mReaderGroupReference = readerGroupReference;
-    
+
     return *this;
 }
 

@@ -42,10 +42,10 @@ public:
     class KEYPLESERVICERESOURCE_API Builder {
     public:
         /**
-         * 
+         *
          */
         friend CardResourceProfileConfigurator;
-        
+
         /**
          * Restricts the scope of the search during the allocation process to the provided plugins.
          *
@@ -103,34 +103,34 @@ public:
 
     private:
         /**
-         * 
+         *
          */
         std::string mProfileName;
-        
-        /**
-         * 
-         */
-        std::shared_ptr<CardResourceProfileExtension> mCardResourceProfileExtensionSpi;
 
         /**
-         * 
+         *
+         */
+        std::shared_ptr<CardResourceProfileExtension> mCardResourceProfileExtension;
+
+        /**
+         *
          */
         std::vector<std::shared_ptr<Plugin>> mPlugins;
 
         /**
-         * 
+         *
          */
         std::string mReaderNameRegex;
-        
+
         /**
-         * 
+         *
          */
         std::string mReaderGroupReference;
 
         /**
          *
          */
-        Builder(const std::string& profileName, 
+        Builder(const std::string& profileName,
                 std::shared_ptr<CardResourceProfileExtension> cardResourceProfileExtension);
     };
 
@@ -150,7 +150,7 @@ public:
      * @return A not null reference.
      * @since 2.0.0
      */
-    std::shared_ptr<CardResourceProfileExtension> getCardResourceProfileExtensionSpi() const;
+    std::shared_ptr<CardResourceProfileExtension> getCardResourceProfileExtension() const;
 
     /**
      * (package-private)<br>
@@ -196,7 +196,7 @@ public:
      * @since 2.0.0
      */
     static Builder* builder(
-        const std::string& profileName, 
+        const std::string& profileName,
         std::shared_ptr<CardResourceProfileExtension> cardResourceProfileExtension);
 
     /**
@@ -206,14 +206,14 @@ public:
 
 private:
     /**
-     * 
+     *
      */
     const std::string mProfileName;
 
     /**
-     * 
+     *
      */
-    const std::shared_ptr<CardResourceProfileExtension> mCardResourceProfileExtensionSpi;
+    const std::shared_ptr<CardResourceProfileExtension> mCardResourceProfileExtension;
 
     /**
      *
@@ -221,12 +221,12 @@ private:
     const std::vector<std::shared_ptr<Plugin>> mPlugins;
 
     /**
-     * 
+     *
      */
     const std::string mReaderNameRegex;
 
     /**
-     * 
+     *
      */
     const std::string mReaderGroupReference;
 };

@@ -158,7 +158,7 @@ void CardProfileManagerAdapter::initializeCardResource(
         readerManager->activate();
 
         std::shared_ptr<CardResource> cardResource =
-            readerManager->matches(mCardProfile->getCardResourceProfileExtensionSpi());
+            readerManager->matches(mCardProfile->getCardResourceProfileExtension());
 
         /*
          * The returned card resource may already be present in the current list if the service
@@ -228,9 +228,8 @@ std::shared_ptr<CardResource> CardProfileManagerAdapter::getRegularCardResource(
                 mService->getReaderManager(reader);
             if (readerManager != nullptr) {
                 try {
-                    if (readerManager->lock(
-                            cardResource,
-                            mCardProfile->getCardResourceProfileExtensionSpi())) {
+                    if (readerManager->lock(cardResource,
+                                            mCardProfile->getCardResourceProfileExtension())) {
                         int cardResourceIndex = Arrays::indexOf(mCardResources, cardResource);
                         updateCardResourcesOrder(cardResourceIndex);
                         result = cardResource;
@@ -274,7 +273,7 @@ std::shared_ptr<CardResource> CardProfileManagerAdapter::getPoolCardResource()
                 poolPlugin->allocateReader(mCardProfile->getReaderGroupReference());
             if (reader != nullptr) {
                 std::shared_ptr<SmartCard> smartCard =
-                    mCardProfile->getCardResourceProfileExtensionSpi()
+                    mCardProfile->getCardResourceProfileExtension()
                                 ->matches(reader,
                                           SmartCardServiceProvider::getService()
                                               .createCardSelectionManager());
