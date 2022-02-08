@@ -165,7 +165,7 @@ bool ReaderManagerAdapter::areEquals(const std::shared_ptr<SmartCard> s1,
         return false;
     }
 
-    bool hasSamePowerOnData = (s1->getPowerOnData() == s2->getPowerOnData()) ||
+    bool hasSamePowerOnData = (s1->getPowerOnData() == "" && s2->getPowerOnData() == "") ||
                               (s1->getPowerOnData() != "" &&
                                s1->getPowerOnData() == s2->getPowerOnData());
 
