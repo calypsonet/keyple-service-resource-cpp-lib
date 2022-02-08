@@ -93,7 +93,7 @@ bool ReaderManagerAdapter::lock(std::shared_ptr<CardResource> cardResource,
                                 std::shared_ptr<CardResourceProfileExtension> extension)
 {
     if (mIsBusy) {
-        if (static_cast<long>(System::currentTimeMillis()) < mLockMaxTimeMillis) {
+        if (static_cast<uint64_t>(System::currentTimeMillis()) < mLockMaxTimeMillis) {
             return false;
         }
 
