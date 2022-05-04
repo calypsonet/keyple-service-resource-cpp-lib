@@ -236,7 +236,7 @@ void CardResourceServiceAdapter::onPluginEvent(const std::shared_ptr<PluginEvent
     }
 
     std::shared_ptr<Plugin> plugin =
-        SmartCardServiceProvider::getService().getPlugin(pluginEvent->getPluginName());
+        SmartCardServiceProvider::getService()->getPlugin(pluginEvent->getPluginName());
 
     if (pluginEvent->getType() == PluginEvent::Type::READER_CONNECTED) {
         for (const std::string& readerName : pluginEvent->getReaderNames()) {

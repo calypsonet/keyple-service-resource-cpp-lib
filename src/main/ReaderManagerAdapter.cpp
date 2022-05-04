@@ -77,7 +77,7 @@ std::shared_ptr<CardResource> ReaderManagerAdapter::matches(
     std::shared_ptr<CardResource> cardResource = nullptr;
     std::shared_ptr<SmartCard> smartCard =
         extension->matches(mReader,
-                           SmartCardServiceProvider::getService().createCardSelectionManager());
+                           SmartCardServiceProvider::getService()->createCardSelectionManager());
 
     if (smartCard != nullptr) {
         cardResource = getOrCreateCardResource(smartCard);
@@ -107,7 +107,7 @@ bool ReaderManagerAdapter::lock(std::shared_ptr<CardResource> cardResource,
         std::shared_ptr<SmartCard> smartCard =
             extension->matches(
                 mReader,
-                SmartCardServiceProvider::getService().createCardSelectionManager());
+                SmartCardServiceProvider::getService()->createCardSelectionManager());
 
         if (!areEquals(cardResource->getSmartCard(), smartCard)) {
             mSelectedCardResource = nullptr;

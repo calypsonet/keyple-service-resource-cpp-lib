@@ -276,7 +276,7 @@ std::shared_ptr<CardResource> CardProfileManagerAdapter::getPoolCardResource()
                     mCardProfile->getCardResourceProfileExtension()
                                 ->matches(reader,
                                           SmartCardServiceProvider::getService()
-                                              .createCardSelectionManager());
+                                              ->createCardSelectionManager());
                 if (smartCard != nullptr) {
                     auto cardResource = std::make_shared<CardResource>(reader, smartCard);
                     mService->registerPoolCardResource(cardResource, poolPlugin);
